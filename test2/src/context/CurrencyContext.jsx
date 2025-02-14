@@ -3,8 +3,17 @@ import { createContext, useState } from "react";
 export const CurrencyContext = createContext();
 
 const CurrencyProvider = ({ children }) => {
-  const [fromCurrency, setFromCurrency] = useState("🇺🇸 USD - United States");
-  const [toCurrency, setToCurrency] = useState("🇦🇺 AUD - Australia");
+  const [fromCurrency, setFromCurrency] = useState({
+    code: "USD",
+    name: "United States",
+    flag: "https://flagcdn.com/w40/us.png",
+  });
+
+  const [toCurrency, setToCurrency] = useState({
+    code: "AUD",
+    name: "Australia",
+    flag: "https://flagcdn.com/w40/au.png",
+  });
   const [firstAmount, setFirstAmount] = useState("");
 
   const value = {
@@ -13,7 +22,7 @@ const CurrencyProvider = ({ children }) => {
     toCurrency,
     setToCurrency,
     firstAmount,
-    setFirstAmount
+    setFirstAmount,
   };
   return (
     <CurrencyContext.Provider value={value}>

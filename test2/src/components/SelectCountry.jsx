@@ -1,4 +1,4 @@
-import { Autocomplete, Grid, Skeleton, TextField } from "@mui/material";
+import { Autocomplete, Grid, TextField, Box } from "@mui/material";
 import useAxios from "../hooks/useAxios";
 
 const SelectCountry = (props) => {
@@ -16,12 +16,14 @@ const SelectCountry = (props) => {
     return "Something went wrong!";
   }
 
-  const dataFilter = data.filter((item) => "currencies" in item);
-  const dataCountries = dataFilter.map((item) => {
-    return `${item.flag} ${Object.keys(item.currencies)[0]} - ${
-      item.name.common
-    }`;
-  });
+
+  const dataCountries = data
+    .filter((item) => "currencies" in item)
+    .map((item) => ({
+      code: Object.keys(item.currencies)[0],
+      name: item.name.common,
+      flag: item.flags.png,
+    }));
 
   return (
     <Grid item xs={4} md={3}>
@@ -32,7 +34,47 @@ const SelectCountry = (props) => {
           setValue(newValue);
         }}
         options={dataCountries}
-        renderInput={(params) => <TextField {...params} label={label} />}
+        getOptionLabel={(option) => `${option.code} - ${option.name}`}
+        renderOption={(props, option) => (
+          <Box
+            component="li"
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            {...props}
+          >
+            <img
+              src={option.flag}
+              alt={option.name}
+              loading="lazy"
+              width="24"
+              height="16"
+              style={{ borderRadius: "2px", objectFit: "cover" }}
+            />
+            {option.code} - {option.name}
+          </Box>
+        )}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={label}
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: value?.flag ? (
+                <img
+                  src={value.flag}
+                  alt={value.name}
+                  loading="lazy"
+                  width="24"
+                  height="16"
+                  style={{
+                    borderRadius: "2px",
+                    objectFit: "cover",
+                    marginRight: 8,
+                  }}
+                />
+              ) : null,
+            }}
+          />
+        )}
       />
     </Grid>
   );

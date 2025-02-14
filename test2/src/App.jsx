@@ -16,24 +16,8 @@ function App() {
     firstAmount,
   } = useContext(CurrencyContext);
   const [resultCurrency, setResultCurrency] = useState(0);
-  const codeFromCurrency = fromCurrency.split(" ")[1];
-  const codeToCurrency = toCurrency.split(" ")[1];
-
-  useEffect(() => {
-    if (firstAmount) {
-      axios("https://api.freecurrencyapi.com/v1/latest", {
-        params: {
-          apikey: import.meta.env.VITE_API_KEY,
-          base_currency: codeFromCurrency,
-          currencies: codeToCurrency,
-        },
-      })
-        .then((response) =>
-          setResultCurrency(response.data.data[codeToCurrency])
-        )
-        .catch((error) => console.log(error));
-    }
-  }, [firstAmount, fromCurrency, toCurrency]);
+  const codeFromCurrency = fromCurrency?.code || "";
+  const codeToCurrency = toCurrency?.code || "";
 
   const boxStyles = {
     backgroundColor: "rgb(241, 235, 235,0.8)",
@@ -60,15 +44,26 @@ function App() {
   };
   const [loading, setLoading] = useState(false);
   const [prevAmount, setPrevAmount] = useState(firstAmount);
+  const [prevFromCurrency, setPrevFromCurrency] = useState(fromCurrency);
+  const [prevToCurrency, setPrevToCurrency] = useState(toCurrency);
+
   const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
-    if (firstAmount !== prevAmount) {
+    if (
+      firstAmount !== prevAmount ||
+      fromCurrency !== prevFromCurrency ||
+      toCurrency !== prevToCurrency
+    ) {
       setIsDisabled(false);
+      setIsValid(false);
+
       setPrevAmount(firstAmount);
+      setPrevFromCurrency(fromCurrency);
+      setPrevToCurrency(toCurrency);
     }
-  }, [firstAmount]);
-  const handleSubmit = () => {
+  }, [firstAmount, fromCurrency, toCurrency]);
+  const handleSubmit = async () => {
     let newErrors = validateAmount(firstAmount);
 
     if (Object.keys(newErrors).length > 0) {
@@ -76,16 +71,31 @@ function App() {
       setIsValid(false);
       return;
     }
+
     setLoading(true);
     setIsDisabled(true);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsValid(true);
       setLoading(false);
+
+      if (firstAmount) {
+        const API_KEY = import.meta.env.VITE_API_KEY;
+        const API_URL = `https://v6.exchangerate-api.com/v6/${API_KEY}/pair/${codeFromCurrency}/${codeToCurrency}/${firstAmount}`;
+        try {
+          const res = await axios.get(API_URL);
+          if (res?.data?.conversion_rate) {
+            setResultCurrency(res.data.conversion_rate);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }, 2000);
   };
+
   return (
-    <Container maxWidth="sm" sx={boxStyles}>
+    <Container maxWidth="sm" sx={{ ...boxStyles, marginTop: "65px" }}>
       <ToastContainer />{" "}
       <img
         src="https://raw.githubusercontent.com/Switcheo/token-icons/main/tokens/SWTH.svg"
@@ -131,14 +141,12 @@ function App() {
       )}
       {isValid && firstAmount ? (
         <Box sx={boxStyles}>
-          <Typography>
-            {firstAmount} {fromCurrency} =
-          </Typography>
           <Typography
             variant="h5"
-            sx={{ marginTop: "5px", fontWeight: "bold" }}
+            sx={{ marginTop: "5px", fontWeight: "bold", color: "#27445D" }}
           >
-            {resultCurrency * firstAmount} {toCurrency}
+            {firstAmount} {fromCurrency?.code} = {resultCurrency * firstAmount}{" "}
+            {toCurrency?.code}
           </Typography>
         </Box>
       ) : (
