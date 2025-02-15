@@ -34,6 +34,6 @@ $ npm run dev
 
 📬 Liên hệ
 
-Nếu bạn có bất kỳ câu hỏi hoặc vấn đề nào, hãy tạo một issue hoặc liên hệ với chúng tôi tại [your-email@example.com].
+Nếu bạn có bất kỳ câu hỏi hoặc vấn đề nào, hãy tạo một issue hoặc liên hệ với chúng tôi tại [lamngocminh1003@gmail.com].
 
 🚀 Chúc bạn code vui vẻ! 🎉
